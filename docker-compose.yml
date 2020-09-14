@@ -1,0 +1,58 @@
+version: '3.7'
+
+# docker-compose up --build -V
+#docker-compose build --no-cache
+
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 3000:3000
+    command: npm run start:dev
+    # command: npm run start:debug
+    env_file:
+      - .env
+    networks:
+      - webnet
+    depends_on:
+      # - redis
+      - mongo
+  mongo:
+    container_name: mongo
+    image: 'mongo'
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data
+    ports:
+      - 27017:27017
+    networks:
+      - webnet
+  # redis:
+  #   container_name: redis
+  #   image: redis:5
+  #   networks:
+  #     - webnet
+  # postgres:
+  #   container_name: postgres
+  #   image: postgres:12
+  #   networks:
+  #     - webnet
+  #   environment:
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     POSTGRES_USER: ${DB_USERNAME}
+  #     POSTGRES_DB: ${DB_DATABASE_NAME}
+  #     PG_DATA: /var/lib/postgresql/data
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+networks:
+  webnet:
+volumes:
+  mongo-data:
